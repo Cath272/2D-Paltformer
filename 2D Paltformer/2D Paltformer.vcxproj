@@ -643,6 +643,13 @@ xcopy /y /d "$(ProjectDir)lib\x64\SOIL\*.dll" "$(OutDir)" &amp;</Command>
     <None Include="lib\x64\GL\glew32s.dll" />
     <None Include="lib\x64\SOIL\SOIL.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="platform.png" />
+    <Image Include="prince_1_400x400.png" />
+    <Image Include="prince_2_400x400.png" />
+    <Image Include="prince_3_400x400.png" />
+    <Image Include="prince_4_400x400.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

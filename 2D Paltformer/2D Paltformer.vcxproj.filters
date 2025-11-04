@@ -1480,4 +1480,21 @@
       <Filter>Resource Files\shaders</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="platform.png">
+      <Filter>Resource Files\textures</Filter>
+    </Image>
+    <Image Include="prince_1_400x400.png">
+      <Filter>Resource Files\textures</Filter>
+    </Image>
+    <Image Include="prince_2_400x400.png">
+      <Filter>Resource Files\textures</Filter>
+    </Image>
+    <Image Include="prince_3_400x400.png">
+      <Filter>Resource Files\textures</Filter>
+    </Image>
+    <Image Include="prince_4_400x400.png">
+      <Filter>Resource Files\textures</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

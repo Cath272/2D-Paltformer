@@ -34,14 +34,22 @@ float gravity = -0.15f;
 float lastTime = 0.0f;
 bool onGround = false;
 
-struct Platform { float xMin, xMax, yMin, yMax; };
+// ==== CHANGED ====
+// Added a bool to mark if a platform should use a single stretched texture
+struct Platform {
+    float xMin, xMax, yMin, yMax;
+    bool singleTexture; // <--- new flag
+};
 
+// ==== CHANGED ====
+// Added `false` for normal platforms, `true` for ground
 std::vector<Platform> platforms = {
-    {200.0f, 400.0f, 200.0f, 300.0f},
-    {600.0f, 800.0f, 100.0f, 200.0f},
-    {1000.0f, 1200.0f, 300.0f, 400.0f},
-    {0.0f, 100.0f, -200.0f, -100.0f},
-    {-4000.0f, 4000.0f, -400.0f, -300.0f} // Big ground platform
+    {200.0f, 400.0f, 200.0f, 300.0f, true},
+    {600.0f, 800.0f, 100.0f, 200.0f, true},
+    {1000.0f, 1200.0f, 300.0f, 400.0f, true},
+    {0.0f, 200.0f, -200.0f, -100.0f, true},
+    {-200.0f, 0.0f, 0.0f, 100.0f, true},
+    {-4000.0f, 4000.0f, -400.0f, -300.0f, false} 
 };
 
 // -------------------- Timer --------------------
@@ -65,7 +73,6 @@ void ProcessSpecialKeys(int key, int xx, int yy)
 {
     if (key == GLUT_KEY_LEFT) tx -= 10;
     if (key == GLUT_KEY_RIGHT) tx += 10;
-    //if (key == GLUT_KEY_UP) ty += 10;
 }
 
 // -------------------- Load texture --------------------
@@ -119,11 +126,11 @@ void CreatePlayerVBO(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, PlayerEboId);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(0); // position
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(1); // color
+    glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (GLvoid*)(4 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(2); // texcoords
+    glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (GLvoid*)(8 * sizeof(GLfloat)));
 }
 
@@ -136,15 +143,27 @@ void CreatePlatformVBO(void)
 
     for (const auto& p : platforms)
     {
-        GLfloat texRepeatX = (p.xMax - p.xMin) / 150.0f; // adjust tiling
-        GLfloat texRepeatY = (p.yMax - p.yMin) / 150.0f;
+        // ==== CHANGED ====
+        // Decide UV scaling based on singleTexture flag
+        GLfloat texRepeatX, texRepeatY;
+        if (p.singleTexture)
+        {
+            texRepeatX = 1.0f;
+            texRepeatY = 1.0f;
+        }
+        else
+        {
+            texRepeatX = (p.xMax - p.xMin) / 150.0f; // repeat pattern for small platforms
+            texRepeatY = (p.yMax - p.yMin) / 150.0f;
+        }
 
         GLfloat verts[] = {
-            p.xMin, p.yMin, 0.0f, 1.0f, 1,0,0,1, 0.0f, 0.0f,
-            p.xMax, p.yMin, 0.0f, 1.0f, 1,0,0,1, texRepeatX, 0.0f,
-            p.xMax, p.yMax, 0.0f, 1.0f, 1,0,0,1, texRepeatX, texRepeatY,
-            p.xMin, p.yMax, 0.0f, 1.0f, 1,0,0,1, 0.0f, texRepeatY
+            p.xMin, p.yMin, 0.0f, 1.0f,  1,0,0,1,  0.0f, 0.0f,
+            p.xMax, p.yMin, 0.0f, 1.0f,  1,0,0,1,  texRepeatX, 0.0f,
+            p.xMax, p.yMax, 0.0f, 1.0f,  1,0,0,1,  texRepeatX, texRepeatY,
+            p.xMin, p.yMax, 0.0f, 1.0f,  1,0,0,1,  0.0f, texRepeatY
         };
+
         vertices.insert(vertices.end(), std::begin(verts), std::end(verts));
 
         GLuint inds[] = { 0,1,2, 0,2,3 };
@@ -165,11 +184,11 @@ void CreatePlatformVBO(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, PlatformEboId);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(0); // position
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(1); // color
+    glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (GLvoid*)(4 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(2); // texcoords
+    glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (GLvoid*)(8 * sizeof(GLfloat)));
 }
 
@@ -203,7 +222,6 @@ void RenderFunction(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Time and gravity
     float currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
     float deltaTime = currentTime - lastTime;
     lastTime = currentTime;
@@ -215,7 +233,6 @@ void RenderFunction(void)
 
     CheckPlatformCollisions(tx, ty);
 
-    // Camera
     glm::mat4 cameraMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-tx, -ty, 0.0f));
 
     // ---------------- Platforms ----------------
