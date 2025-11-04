@@ -153,8 +153,8 @@ void CreatePlatformVBO(void)
         }
         else
         {
-            texRepeatX = (p.xMax - p.xMin) / 150.0f; // repeat pattern for small platforms
-            texRepeatY = (p.yMax - p.yMin) / 150.0f;
+            texRepeatX = (p.xMax - p.xMin) / 200.0f; // repeat pattern for small platforms
+            texRepeatY = (p.yMax - p.yMin) / 100.0f;
         }
 
         GLfloat verts[] = {
@@ -197,19 +197,19 @@ void CheckPlatformCollisions(float& tx, float& ty)
 {
     onGround = false;
 
-    float playerLeft = tx - 75.0f;
-    float playerRight = tx + 75.0f;
-    float playerBottom = ty - 75.0f;
+    float playerLeft = tx - 20.0f;
+    float playerRight = tx + 20.0f;
+    float playerBottom = ty - 50.0f;
     float playerTop = ty + 75.0f;
 
     for (const auto& p : platforms)
     {
         bool overlapX = playerRight > p.xMin && playerLeft < p.xMax;
-        bool overlapY = playerBottom <= p.yMax && playerTop >= p.yMin;
+        bool overlapY = playerBottom  <= p.yMax  && playerTop >= p.yMin ;
 
-        if (overlapX && overlapY && playerYVelocity <= 0.0f && playerBottom > p.yMax - 20.0f)
+        if (overlapX && overlapY && playerYVelocity <= 0.0f && playerBottom > p.yMax - 40.0f)
         {
-            ty = p.yMax + 75.0f;
+            ty = p.yMax + 40.0f;
             playerYVelocity = 0.0f;
             onGround = true;
             break;
