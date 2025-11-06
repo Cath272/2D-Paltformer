@@ -34,6 +34,10 @@ float gravity = -0.15f;
 float lastTime = 0.0f;
 bool onGround = false;
 
+bool movingLeft = false;
+bool movingRight = false;
+float moveSpeed = 5.0f;
+
 // ==== CHANGED ====
 // Added a bool to mark if a platform should use a single stretched texture
 struct Platform {
@@ -42,10 +46,10 @@ struct Platform {
 };
 
 // ==== CHANGED ====
-// Added `false` for normal platforms, `true` for ground
+// Added `true` for normal platforms, `false` for ground
 std::vector<Platform> platforms = {
     {200.0f, 400.0f, 200.0f, 300.0f, true},
-    {600.0f, 800.0f, 100.0f, 200.0f, true},
+    {400.0f, 600.0f, 100.0f, 200.0f, true},
     {1000.0f, 1200.0f, 300.0f, 400.0f, true},
     {0.0f, 200.0f, -200.0f, -100.0f, true},
     {-200.0f, 0.0f, 0.0f, 100.0f, true},
@@ -67,12 +71,20 @@ void ProcessNormalKeys(unsigned char key, int x, int y)
         playerYVelocity = 10.0f;
         onGround = false;
     }
+
+
 }
 
 void ProcessSpecialKeys(int key, int xx, int yy)
 {
-    if (key == GLUT_KEY_LEFT) tx -= 10;
-    if (key == GLUT_KEY_RIGHT) tx += 10;
+    if (key == GLUT_KEY_LEFT)  movingLeft = true;
+    if (key == GLUT_KEY_RIGHT) movingRight = true;
+}
+
+void ProcessSpecialUpKeys(int key, int xx, int yy)
+{
+    if (key == GLUT_KEY_LEFT)  movingLeft = false;
+    if (key == GLUT_KEY_RIGHT) movingRight = false;
 }
 
 // -------------------- Load texture --------------------
@@ -231,6 +243,15 @@ void RenderFunction(void)
 
     ty += playerYVelocity * deltaTime * 60.0f;
 
+    // Continuous, smooth left/right movement
+    if (movingLeft){
+        tx -= moveSpeed; // constant step per frame
+    }
+
+    if (movingRight) {
+        tx += moveSpeed;
+    }
+
     CheckPlatformCollisions(tx, ty);
 
     glm::mat4 cameraMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-tx, -ty, 0.0f));
@@ -320,6 +341,7 @@ int main(int argc, char* argv[])
     glutTimerFunc(FRAME_INTERVAL, TimerFunction, 0);
     glutKeyboardFunc(ProcessNormalKeys);
     glutSpecialFunc(ProcessSpecialKeys);
+    glutSpecialUpFunc(ProcessSpecialUpKeys);
     glutCloseFunc(Cleanup);
 
     glutMainLoop();
