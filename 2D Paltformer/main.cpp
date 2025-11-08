@@ -10,9 +10,11 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "SOIL.h"
 #include <vector>
+#include <iostream>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H  
+
+
+
 
 
 // -------------------- OpenGL Identifiers --------------------
@@ -44,6 +46,7 @@ GLfloat anglePlayer = 0.0;
 bool movingLeft = false;
 bool movingRight = false;
 float moveSpeed = 5.0f;
+
 
 // ==== CHANGED ====
 // Added a bool to mark if a platform should use a single stretched texture
@@ -329,6 +332,8 @@ void Initialize(void)
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
 }
 
 // -------------------- Cleanup --------------------
@@ -352,6 +357,9 @@ void Cleanup(void)
 // -------------------- Main --------------------
 int main(int argc, char* argv[])
 {
+
+    
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowSize(winWidth, winHeight);
@@ -361,6 +369,8 @@ int main(int argc, char* argv[])
     glewInit();
 
     Initialize();
+
+   
 
     glutDisplayFunc(RenderFunction);
     glutTimerFunc(FRAME_INTERVAL, TimerFunction, 0);
