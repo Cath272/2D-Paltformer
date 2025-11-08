@@ -11,6 +11,10 @@
 #include "SOIL.h"
 #include <vector>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H  
+
+
 // -------------------- OpenGL Identifiers --------------------
 GLuint PlayerVaoId, PlayerVboId, PlayerEboId;
 GLuint PlatformVaoId, PlatformVboId, PlatformEboId;
@@ -33,6 +37,9 @@ float playerYVelocity = 1.0f;
 float gravity = -0.15f;
 float lastTime = 0.0f;
 bool onGround = false;
+
+GLfloat anglePlayer = 0.0;
+
 
 bool movingLeft = false;
 bool movingRight = false;
@@ -229,6 +236,22 @@ void CheckPlatformCollisions(float& tx, float& ty)
     }
 }
 
+void spin() {
+    anglePlayer= anglePlayer + 0.3f;
+    if (anglePlayer >= 360.0) {
+        anglePlayer = 0.0;
+    }
+
+}
+
+void spinback() {
+    anglePlayer = anglePlayer - 0.3f;
+    if (anglePlayer == 0.0) {
+        anglePlayer = 360.0;
+    }
+
+}
+
 // -------------------- Render Function --------------------
 void RenderFunction(void)
 {
@@ -246,10 +269,12 @@ void RenderFunction(void)
     // Continuous, smooth left/right movement
     if (movingLeft){
         tx -= moveSpeed; // constant step per frame
+        spinback();
     }
 
     if (movingRight) {
         tx += moveSpeed;
+        spin();
     }
 
     CheckPlatformCollisions(tx, ty);
@@ -272,7 +297,7 @@ void RenderFunction(void)
     // ---------------- Player ----------------
     glm::mat4 playerMatrix = resizeMatrix * cameraMatrix *
         glm::translate(glm::mat4(1.0f), glm::vec3(tx, ty, 0.0f)) *
-        glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0, 0, 1));
+        glm::rotate(glm::mat4(1.0f), anglePlayer, glm::vec3(0, 0, 1));
 
     glBindVertexArray(PlayerVaoId);
     glActiveTexture(GL_TEXTURE0);
